@@ -4,6 +4,8 @@ import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
 import android.util.Log;
 
+import com.japg.mastermoviles.opengl10.Shaders.BasicShaderProgram;
+import com.japg.mastermoviles.opengl10.Shaders.Shader;
 import com.japg.mastermoviles.opengl10.util.LoggerConfig;
 import com.japg.mastermoviles.opengl10.util.Resource3DSReader;
 import com.japg.mastermoviles.opengl10.util.ShaderHelper;
@@ -11,6 +13,8 @@ import com.japg.mastermoviles.opengl10.util.TextResourceReader;
 import com.japg.mastermoviles.opengl10.util.TextureHelper;
 
 import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -74,20 +78,29 @@ public class OpenGLRenderer implements Renderer {
 	private static final String A_UV       = "a_UV";
 
 	// Handles para los shaders
-	private int uMVPMatrixLocation;
+/*	private int uMVPMatrixLocation;
 	private int uMVMatrixLocation;
 	private int uColorLocation;
 	private int uTextureUnitLocation;
 	private int aPositionLocation;
 	private int aNormalLocation;
 	private int aUVLocation;
+
+
+ */
 	
 	private int	texture;
 	
 	// Rotación alrededor de los ejes
 	private float rX = 0f;
+	private float orgRX = 0f;
 	private float rY = 0f;
-	
+	private float orgRY = 0f;
+
+
+	private float preRX = 0f;
+	private float preRY = 0f;
+
 	private static final int POSITION_COMPONENT_COUNT = 3;
 	private static final int NORMAL_COMPONENT_COUNT = 3;
 	private static final int UV_COMPONENT_COUNT = 2;
@@ -99,6 +112,13 @@ public class OpenGLRenderer implements Renderer {
 	private final float[] projectionMatrix = new float[16];
 	private final float[] modelMatrix = new float[16];
 	private final float[] MVP = new float[16];
+
+	private BasicShaderProgram probeShader;
+
+
+	private GameObject monkey;
+
+	private float start = System.currentTimeMillis();
 
 	Resource3DSReader obj3DS;
 	
@@ -187,10 +207,21 @@ public class OpenGLRenderer implements Renderer {
 	
 	public OpenGLRenderer(Context context) {
 		this.context = context;
-		
+
 		// Lee un archivo 3DS desde un recurso
-		obj3DS = new Resource3DSReader();
+		/*obj3DS = new Resource3DSReader();
 		obj3DS.read3DSFromResource(context, R.raw.mono);
+*/
+		List<Integer> monkeyIds = new ArrayList<Integer>();
+		monkeyIds.add(R.raw.cubo);
+		monkeyIds.add(R.raw.mono);
+
+		List<Integer> monkeyTextIds = new ArrayList<Integer>();
+		monkeyTextIds.add(R.drawable.mono_tex);
+		monkey = new GameObject(context,
+								monkeyIds,
+								monkeyTextIds,
+								0, 0, -7);
 	}
 	
 	@Override
@@ -214,51 +245,20 @@ public class OpenGLRenderer implements Renderer {
 			Log.w(TAG, "Max. Texture Image Units: "+maxTextureImageUnits[0]);
 		}
 		// Cargamos la textura desde los recursos
-		texture = TextureHelper.loadTexture(context, R.drawable.mono_tex);
-		
+
+		monkey.CreateTexture(context);
+
 		// Leemos los shaders
-		if (maxVertexTextureImageUnits[0]>0) {
-			// Textura soportada en el vertex shader
-			vertexShaderSource = TextResourceReader
-				.readTextFileFromResource(context, R.raw.specular_vertex_shader);
-			fragmentShaderSource = TextResourceReader
-				.readTextFileFromResource(context, R.raw.specular_fragment_shader);
-		} else {
-			// Textura no soportada en el vertex shader
-			vertexShaderSource = TextResourceReader
-				.readTextFileFromResource(context, R.raw.specular_vertex_shader2);
-			fragmentShaderSource = TextResourceReader
-				.readTextFileFromResource(context, R.raw.specular_fragment_shader2);			
-		}
-		
-		// Compilamos los shaders
-		int vertexShader = ShaderHelper.compileVertexShader(vertexShaderSource);
-		int fragmentShader = ShaderHelper.compileFragmentShader(fragmentShaderSource);
-		
-		// Enlazamos el programa OpenGL
-		program = ShaderHelper.linkProgram(vertexShader, fragmentShader);
-		
-		// En depuración validamos el programa OpenGL
-		if (LoggerConfig.ON) {
-			ShaderHelper.validateProgram(program);
-		}
-		
+		if (maxVertexTextureImageUnits[0]>0) probeShader = new BasicShaderProgram(context, R.raw.specular_vertex_shader, R.raw.specular_fragment_shader);
+		else probeShader = new BasicShaderProgram(context, R.raw.specular_vertex_shader2, R.raw.specular_vertex_shader2);
+
 		// Activamos el programa OpenGL
-		glUseProgram(program);
-		
+		//glUseProgram(program);
+		Shader.UseShader(probeShader);
 		// Capturamos los uniforms
-		uMVPMatrixLocation = glGetUniformLocation(program, U_MVPMATRIX);
-		uMVMatrixLocation = glGetUniformLocation(program, U_MVMATRIX);
-		uColorLocation = glGetUniformLocation(program, U_COLOR);
-		uTextureUnitLocation = glGetUniformLocation(program, U_TEXTURE);
-		
+		probeShader.PrepareUniforms();
 		// Capturamos los attributes
-		aPositionLocation = glGetAttribLocation(program, A_POSITION);
-		glEnableVertexAttribArray(aPositionLocation);
-		aNormalLocation = glGetAttribLocation(program, A_NORMAL);
-		glEnableVertexAttribArray(aNormalLocation);
-		aUVLocation = glGetAttribLocation(program, A_UV);
-		glEnableVertexAttribArray(aUVLocation);	
+		probeShader.PrepareAttributes();
 	}
 	
 	@Override
@@ -283,73 +283,55 @@ public class OpenGLRenderer implements Renderer {
 	
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
-			
-		// Clear the rendering surface.
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glEnable(GL_DITHER);
 		glLineWidth(2.0f);
-		
-		
-		
-		// Creamos la matriz del modelo 
-		setIdentityM(modelMatrix, 0);
-		translateM(modelMatrix, 0, 0f, 0.0f, -7.0f);
-		// Rotación alrededor del eje x e y
-		rotateM(modelMatrix, 0, rY, 0f, 1f, 0f);
-		rotateM(modelMatrix, 0, rX, 1f, 0f, 0f);
-				
-		multiplyMM(MVP, 0, projectionMatrix, 0, modelMatrix, 0);
-		//System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
-	
-		
-		// Env?a la matriz de proyecci?n multiplicada por modelMatrix al shader
-		glUniformMatrix4fv(uMVPMatrixLocation, 1, false, MVP, 0);
-		// Env?a la matriz modelMatrix al shader
-		glUniformMatrix4fv(uMVMatrixLocation, 1, false, modelMatrix, 0);	
-		// Actualizamos el color (Marr?n)
-		//glUniform4f(uColorLocation, 0.78f, 0.49f, 0.12f, 1.0f); 
-		glUniform4f(uColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-			
-		// Pasamos la textura
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUniform1f(uTextureUnitLocation, 0);
-		
-		// Dibujamos el objeto
-		for (int i=0; i<obj3DS.numMeshes; i++) {
-			// Asociando vértices con su attribute
-			final Buffer position = obj3DS.dataBuffer[i].position(0);
-			glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT,
-					false, STRIDE, obj3DS.dataBuffer[i]);
-			
-			// Asociamos el vector de normales
-			obj3DS.dataBuffer[i].position(POSITION_COMPONENT_COUNT);
-			glVertexAttribPointer(aNormalLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT,
-					false, STRIDE, obj3DS.dataBuffer[i]);
-			
-			// Asociamos el vector de UVs
-			obj3DS.dataBuffer[i].position(POSITION_COMPONENT_COUNT+NORMAL_COMPONENT_COUNT);
-			glVertexAttribPointer(aUVLocation, NORMAL_COMPONENT_COUNT, GL_FLOAT,
-					false, STRIDE, obj3DS.dataBuffer[i]);
-			glDrawArrays(GL_TRIANGLES, 0, obj3DS.numVertices[i]);
-		}
+
+
+	//		monkey.Rotate( System.nanoTime() /1000000000000f,0, 1, 0);
+
+		//monkey.getChilds().get(0).transform.Rotate(-System.nanoTime() /1000000000000f, 0.0f, 1.0f, 0.0f);
+		// monkey.Rotate( -System.nanoTime() /1000000000000f,0, 1, 0);
+		//monkey.getChilds().get(1).transform.Rotate(System.nanoTime() /1000000f, 0.0f, 1.0f, 0.0f);
+
+		monkey.PrepareTransformToDraw();
+
+		monkey.Rotate(  rX , 1, 0, 0);
+		monkey.Rotate(  rY,0, 1, 0);
+		monkey.getChilds().get(1).transform.Rotate(System.nanoTime() /10000000f, 0.0f, 1.0f, 0.0f);
+
+		probeShader.RenderGameObject(monkey, projectionMatrix);
 	}
 	
 	public void handleTouchPress(float normalizedX, float normalizedY) {
 		if (LoggerConfig.ON) {
-			//Log.w(TAG, "Touch Press ["+normalizedX+", "+normalizedY+"]");
+			Log.w(TAG, "Touch Press ["+normalizedX+", "+normalizedY+"]");
+			//rX = -normalizedY*180f;
+			//rY = normalizedX*180f;
+
+			//preRY += rY;
+			//preRX += rX;
+
+			//rY = 0;
+			//rX =0;
 		}
 	}
 	
 	public void handleTouchDrag(float normalizedX, float normalizedY) {
 		if (LoggerConfig.ON) {
-			//Log.w(TAG, "Touch Drag ["+normalizedX+", "+normalizedY+"]");
+			Log.w(TAG, "Touch Drag ["+normalizedX+", "+normalizedY+"]");
 		}
 		rX = -normalizedY*180f;
 		rY = normalizedX*180f;
+		//monkey.Rotate( -System.nanoTime() /1000000000000f,0, 1, 0);
+
+		//rX -=orgRX;
+		//rY -=orgRY;
+
+		System.out.println("RY: " + rY );
+		System.out.println("RX: " + rX );
+
 	}
 }
