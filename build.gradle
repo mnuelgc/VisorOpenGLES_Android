@@ -18,8 +18,10 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
-    }
+        maven{
+            url 'https://raw.githubusercontent.com/kotlin-graphics/mary/master'
+
+        }}
 }
 
 task clean(type: Delete) {
