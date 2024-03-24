@@ -51,15 +51,8 @@ public class BasicShaderProgram extends Shader{
         attributes = new HashMap<String, Integer>();
 
         attributes.put(A_POSITION, glGetAttribLocation(programID, A_POSITION));
-       // glEnableVertexAttribArray(attributes.get(A_POSITION));
-
         attributes.put(A_NORMAL, glGetAttribLocation(programID, A_NORMAL));
-
-     //   glEnableVertexAttribArray(attributes.get(A_NORMAL));
-
         attributes.put(A_UV, glGetAttribLocation(programID, A_UV));
-       // glEnableVertexAttribArray(attributes.get(A_UV));
-
 
         for (Map.Entry<String, Integer> entry : attributes.entrySet()) {
             glEnableVertexAttribArray(entry.getValue());
@@ -72,10 +65,11 @@ public class BasicShaderProgram extends Shader{
     public void RenderGameObject(GameObject gameObject, Mat4 projectionMatrix)
     {
 
-        Mat4 mvp = new Mat4().identity();
+//        System.out.println(projectionMatrix.toString());
 
         for(GameObject child : gameObject.getChilds()) {
-            mvp = projectionMatrix.times(child.getModelMatrix());
+            Mat4 mvp = projectionMatrix.times(child.getModelMatrix());
+
 
             // Env?a la matriz de proyecci?n multiplicada por modelMatrix al shader
             glUniformMatrix4fv(uniforms.get(U_MVPMATRIX), 1, false, mvp.toFloatArray(), 0);
@@ -84,9 +78,6 @@ public class BasicShaderProgram extends Shader{
             // Actualizamos el color (Marr?n)
             glUniform4f(uniforms.get(U_COLOR), 1f, 1f, 1f, 1.0f);
 
-            /*  }*/
-            //  System.out.println(uniforms.toString());
-            //  System.out.println(attributes.toString());
             child.Render(attributes.get(A_POSITION), attributes.get(A_NORMAL), attributes.get(A_UV), uniforms.get(U_TEXTURE));
         }
     }

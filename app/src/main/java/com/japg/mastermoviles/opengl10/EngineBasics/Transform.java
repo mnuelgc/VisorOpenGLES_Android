@@ -18,37 +18,19 @@ public class Transform {
     Vec3 mAnglesEuler;
     Mat4 mModelMatrix;
 
-
-    //private List<Vector<Float>> transformStack;
-
     Transform(String name) {
         mName = name;
         mPosition = new Vec3(0, 0,0 );
         mAnglesEuler = new Vec3(0,0,0);
         mModelMatrix = new Mat4().identity();
-
-//        transformStack = new ArrayList<Vector<Float>>();
     }
 
     public void Translate(int offset, float positionX, float positionY, float positionZ) {
 
-        System.out.println( mName +  ": Posx = " + positionX + " Posy = " + positionY + " Posz = "+ positionZ);
-
+      //  System.out.println( mName +  ": Posx = " + positionX + " Posy = " + positionY + " Posz = "+ positionZ);
         mPosition.plusAssign(new Vec3(positionX, positionY, positionZ));
-
-        System.out.println( mName +  ": x = " +mPosition.get(0) + " y = " + mPosition.get(1) + " z = "+ mPosition.get(2));
-
-        Vector<Float> translation= new Vector<Float>(5);
-        translation.add(0f);
-        translation.add((float)offset);
-        translation.add(positionX);
-        translation.add(positionY);
-        translation.add(positionZ);
-
-     //   transformStack.add(translation);
-
+       // System.out.println( mName +  ": x = " +mPosition.get(0) + " y = " + mPosition.get(1) + " z = "+ mPosition.get(2));
         mModelMatrix.translateAssign(mPosition);
- //       translateM(modelMatrix, offset, positionX, positionY, positionZ);
     }
 
     public Mat4 GetModelMatrix() { return mModelMatrix;}
@@ -58,10 +40,8 @@ public class Transform {
     }
 
     public void Rotate(float a, float x, float y, float z) {
-     //   mAnglesEuler.plusAssign(new Vec3(x, y, z).times(a));
 
-        System.out.println( mName +  ": a = "+ a +" Axisx = " + x + " Axisy = " + y + " Axisz = "+ z);
-
+    //    System.out.println( mName +  ": a = "+ a +" Axisx = " + x + " Axisy = " + y + " Axisz = "+ z);
         mModelMatrix.rotateAssign(a / 100, new Vec3(x, y, z).normalize());
     }
 

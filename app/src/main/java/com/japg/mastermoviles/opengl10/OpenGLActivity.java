@@ -1,5 +1,6 @@
 package com.japg.mastermoviles.opengl10;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Toast;
@@ -16,11 +18,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+
 public class OpenGLActivity extends AppCompatActivity {
 	private GLSurfaceView glSurfaceView;
 	private boolean rendererSet = false;
 
-    @Override
+	public boolean isScaling = false;
+	ScaleGestureDetector objScaleGestureDetector;
+
+	OpenGLRenderer openGLRenderer;
+
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
 
 		/*super.onCreate(savedInstanceState);
@@ -40,7 +48,9 @@ public class OpenGLActivity extends AppCompatActivity {
 
 		super.onCreate(savedInstanceState);
         glSurfaceView = new GLSurfaceView(this);
-        final OpenGLRenderer openGLRenderer = new OpenGLRenderer(this);
+		objScaleGestureDetector = new ScaleGestureDetector(this, new PinchZoomListener());
+		openGLRenderer = new OpenGLRenderer(this);
+        //final OpenGLRenderer openGLRenderer = new OpenGLRenderer(this);
         final ActivityManager activityManager =
         		(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo =
@@ -71,8 +81,10 @@ public class OpenGLActivity extends AppCompatActivity {
         }
         
         glSurfaceView.setOnTouchListener(new OnTouchListener() {
-        	@Override
+        	@SuppressLint("ClickableViewAccessibility")
+			@Override
         	public boolean onTouch(View v, MotionEvent event) {
+
         	  if (event != null) {
         		// Convert touch coordinates into normalized device
         		// coordinates, keeping in mind that Android's Y
@@ -87,12 +99,16 @@ public class OpenGLActivity extends AppCompatActivity {
         				}
         			});
         		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-        			glSurfaceView.queueEvent(new Runnable() {
-        				@Override
-        				public void run() {
-        					openGLRenderer.handleTouchDrag(normalizedX, normalizedY);
-        				}
-        			});
+					System.out.println(objScaleGestureDetector.onTouchEvent(event));
+					System.out.println("isScaling " + isScaling);
+					if (!isScaling) {
+						glSurfaceView.queueEvent(new Runnable() {
+							@Override
+							public void run() {
+								openGLRenderer.handleTouchDrag(normalizedX, normalizedY);
+							}
+						});
+					}
         		}
         		return true;
         	  } else {
@@ -137,5 +153,43 @@ public class OpenGLActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+	public class PinchZoomListener extends ScaleGestureDetector.SimpleOnScaleGestureListener{
+
+		@Override
+		public boolean onScale(ScaleGestureDetector detector) {
+			float gestureFactor = detector.getScaleFactor();
+			if(gestureFactor > 1){ System.out.println("ZoomOut");
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.handleZoomOut(getWindowManager().getDefaultDisplay().getWidth(),  getWindowManager().getDefaultDisplay().getHeight());
+					}
+				});
+
+			}
+			else{ System.out.println("ZoomIn");
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.handleZoomIn(getWindowManager().getDefaultDisplay().getWidth(),  getWindowManager().getDefaultDisplay().getHeight());
+					}
+				});
+			}
+			return true;
+		}
+
+		@Override
+		public boolean onScaleBegin(ScaleGestureDetector detector) {
+			isScaling = true;
+			return true;
+		}
+
+		@Override
+		public void onScaleEnd(ScaleGestureDetector detector) {
+			isScaling = false;
+			super.onScaleEnd(detector);
+		}
+	}
    
 }
