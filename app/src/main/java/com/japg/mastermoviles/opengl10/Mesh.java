@@ -49,7 +49,7 @@ public class Mesh{
     {
         model = new Resource3DSReader();
         model.read3DSFromResource(context, resourceId != null ? resourceId : 0);
-        transform = new Transform();
+        transform = new Transform("Mesh transform");
 
         mTextureId = Integer.MIN_VALUE;
 
@@ -68,7 +68,7 @@ public class Mesh{
     {
         model = new Resource3DSReader();
         model.read3DSFromResource(context, resourceId != null ? resourceId : 0);
-        transform = new Transform();
+        transform = new Transform( "Mesh Transform");
 
 
         transform.SetModelMatrix(parent.GetModelMatrix());
@@ -90,7 +90,7 @@ public class Mesh{
     {
         model = new Resource3DSReader();
         model.read3DSFromResource(context, resourceId != null ? resourceId : 0);
-        transform = new Transform();
+        transform = new Transform("Mesh Transform");
 
         mTextureId = Integer.MIN_VALUE;
 
@@ -110,7 +110,7 @@ public class Mesh{
     {
         model = new Resource3DSReader();
         model.read3DSFromResource(context, resourceId != null ? resourceId : 0);
-        transform = new Transform();
+        transform = new Transform("Mesh Transform");
 
         mTextureId = textureId;
 

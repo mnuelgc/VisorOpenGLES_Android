@@ -52,6 +52,8 @@ import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
 
+import glm_.mat4x4.Mat4;
+
 
 public class OpenGLRenderer implements Renderer {
 	private static final String TAG = "OpenGLRenderer";
@@ -302,7 +304,7 @@ public class OpenGLRenderer implements Renderer {
 		monkey.Rotate(  rY,0, 1, 0);
 		monkey.getChilds().get(1).transform.Rotate(System.nanoTime() /10000000f, 0.0f, 1.0f, 0.0f);
 
-		probeShader.RenderGameObject(monkey, projectionMatrix);
+		probeShader.RenderGameObject(monkey, new Mat4(projectionMatrix));
 	}
 	
 	public void handleTouchPress(float normalizedX, float normalizedY) {

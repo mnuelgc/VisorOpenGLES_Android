@@ -22,6 +22,8 @@ import com.japg.mastermoviles.opengl10.Mesh;
 import java.util.HashMap;
 import java.util.Map;
 
+import glm_.mat4x4.Mat4;
+
 public class BasicShaderProgram extends Shader{
 
     //**UNIFORMS NAMES*//
@@ -76,23 +78,20 @@ public class BasicShaderProgram extends Shader{
     }
 
     @Override
-    public void RenderGameObject(GameObject gameObject, float[] projectionMatrix)
+    public void RenderGameObject(GameObject gameObject, Mat4 projectionMatrix)
     {
-        float [] MVP = new float[16];
+
+        Mat4 mvp = new Mat4().identity();
 
         for(GameObject child : gameObject.getChilds()) {
-            /*   for (Mesh mesh :  gameObject.getMeshes()) {*/
-            //  multiplyMM(MVP, 0, projectionMatrix, 0, mesh.transform.GetModelMatrix(), 0);
-            multiplyMM(MVP, 0, projectionMatrix, 0, child.getModelMatrix(), 0);
+            mvp = projectionMatrix.times(child.getModelMatrix());
 
             // Env?a la matriz de proyecci?n multiplicada por modelMatrix al shader
-            glUniformMatrix4fv(uniforms.get(U_MVPMATRIX), 1, false, MVP, 0);
+            glUniformMatrix4fv(uniforms.get(U_MVPMATRIX), 1, false, mvp.toFloatArray(), 0);
             // Env?a la matriz modelMatrix al shader
-            // glUniformMatrix4fv(uniforms.get(U_MVMATRIX), 1, false, mesh.transform.GetModelMatrix(), 0);
-            glUniformMatrix4fv(uniforms.get(U_MVMATRIX), 1, false, child.getModelMatrix(), 0);
+            glUniformMatrix4fv(uniforms.get(U_MVMATRIX), 1, false, child.getModelMatrix().toFloatArray(), 0);
             // Actualizamos el color (Marr?n)
-            //glUniform4f(uColorLocation, 0.78f, 0.49f, 0.12f, 1.0f);
-            glUniform4f(uniforms.get(U_COLOR), 1.0f, 1.0f, 1.0f, 1.0f);
+            glUniform4f(uniforms.get(U_COLOR), 1f, 1f, 1f, 1.0f);
 
             /*  }*/
             //  System.out.println(uniforms.toString());

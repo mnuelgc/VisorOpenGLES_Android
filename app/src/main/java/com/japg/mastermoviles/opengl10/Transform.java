@@ -8,39 +8,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import glm_.mat4x4.Mat4;
+import glm_.vec3.Vec3;
+
 public class Transform {
-    private Vector<Float> mPosition;
-    private float[] mAnglesEuler;
-    private float[] modelMatrix;
 
-    private List<Vector<Float>> transformStack;
-
-    Transform() {
-        mPosition = new Vector<Float>(3);
-        mAnglesEuler = new float[3];
-        modelMatrix = new float[16];
-        setIdentityM(modelMatrix, 0);
-
-        transformStack = new ArrayList<Vector<Float>>();
+    String mName;
+    Vec3 mPosition;
+    Vec3 mAnglesEuler;
+    Mat4 mModelMatrix;
 
 
-        mPosition.add(0f);
-        mPosition.add(0f);
-        mPosition.add(0f);
+    //private List<Vector<Float>> transformStack;
 
-        mAnglesEuler[0] = 0;
-        mAnglesEuler[1] = 0;
-        mAnglesEuler[2] = 0;
+    Transform(String name) {
+        mName = name;
+        mPosition = new Vec3(0, 0,0 );
+        mAnglesEuler = new Vec3(0,0,0);
+        mModelMatrix = new Mat4().identity();
+
+//        transformStack = new ArrayList<Vector<Float>>();
     }
 
     public void Translate(int offset, float positionX, float positionY, float positionZ) {
-        mPosition.setElementAt(mPosition.elementAt(0) + positionX, 0 );
-        mPosition.setElementAt(mPosition.elementAt(1) + positionY, 1 );
-        mPosition.setElementAt(mPosition.elementAt(2) + positionZ, 2 );
 
-        System.out.println(mPosition.get(0));
-        System.out.println(mPosition.get(1));
-        System.out.println(mPosition.get(2));
+        System.out.println( mName +  ": Posx = " + positionX + " Posy = " + positionY + " Posz = "+ positionZ);
+
+        mPosition.plusAssign(new Vec3(positionX, positionY, positionZ));
+
+        System.out.println( mName +  ": x = " +mPosition.get(0) + " y = " + mPosition.get(1) + " z = "+ mPosition.get(2));
 
         Vector<Float> translation= new Vector<Float>(5);
         translation.add(0f);
@@ -49,39 +45,28 @@ public class Transform {
         translation.add(positionY);
         translation.add(positionZ);
 
-        transformStack.add(translation);
+     //   transformStack.add(translation);
 
-        translateM(modelMatrix, offset, positionX, positionY, positionZ);
+        mModelMatrix.translateAssign(mPosition);
+ //       translateM(modelMatrix, offset, positionX, positionY, positionZ);
     }
 
-    public float[] GetModelMatrix() { return modelMatrix;}
+    public Mat4 GetModelMatrix() { return mModelMatrix;}
 
-    public void SetModelMatrix(float[] modelMatrix) {
-        this.modelMatrix = modelMatrix;
+    public void SetModelMatrix(Mat4 modelMatrix) {
+        this.mModelMatrix = modelMatrix;
     }
 
     public void Rotate(float a, float x, float y, float z) {
-        mAnglesEuler[0] += x * a;
-        mAnglesEuler[1] += y * a;
-        mAnglesEuler[2] += z * a;
+     //   mAnglesEuler.plusAssign(new Vec3(x, y, z).times(a));
 
-        Vector<Float> rotation= new Vector<Float>(6);
-        rotation.add(1f);
-        rotation.add((float)0);
-        rotation.add(x);
-        rotation.add(y);
-        rotation.add(z);
-        rotation.add(a);
+        System.out.println( mName +  ": a = "+ a +" Axisx = " + x + " Axisy = " + y + " Axisz = "+ z);
 
-        transformStack.add(rotation);
-
-        rotateM(modelMatrix, 0, a, x, y, z);
+        mModelMatrix.rotateAssign(a / 100, new Vec3(x, y, z).normalize());
     }
 
     public void PrepareDraw() {
-        if (mPosition.size() == 3) {
-            setIdentityM(modelMatrix, 0);
-            translateM(modelMatrix, 0, mPosition.get(0), mPosition.get(1), mPosition.get(2));
-        }
+        mModelMatrix.identity();
+        mModelMatrix.translateAssign(mPosition);
     }
 }

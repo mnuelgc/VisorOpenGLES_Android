@@ -14,6 +14,8 @@ import com.japg.mastermoviles.opengl10.util.TextResourceReader;
 import java.util.List;
 import java.util.Map;
 
+import glm_.mat4x4.Mat4;
+
 public class Shader {
 
     protected int programID;
@@ -79,7 +81,7 @@ public class Shader {
         }
     }
 
-    public void RenderGameObject(GameObject gameObject, float[] projectionMatrix)
+    public void RenderGameObject(GameObject gameObject, Mat4 projectionMatrix)
     {
         try{
             throw new Exception();

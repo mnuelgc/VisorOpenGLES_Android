@@ -15,6 +15,8 @@ import com.japg.mastermoviles.opengl10.util.TextureHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import glm_.mat4x4.Mat4;
+
 
 public class GameObject
 {
@@ -41,16 +43,17 @@ public class GameObject
 
 		if (parent == null)
 		{
-			transform = new Transform();
+			transform = new Transform("parentTransform");
 			transform.Translate(0, xInicial,yInicial,zInicial);
 		}
 		else {
-			transform = new Transform();
-			transformLocal = new Transform();
+			transform = new Transform("Child transform");
+			transformLocal = new Transform("Child localTransform");
 
 			transformLocal.Translate(0, xInicial,yInicial,zInicial);
 
-			multiplyMM(transform.GetModelMatrix(), 0, parent.transform.GetModelMatrix(), 0, transformLocal.GetModelMatrix(), 0);
+			transform.SetModelMatrix(parent.getModelMatrix().times(transformLocal.GetModelMatrix()));
+		//	multiplyMM(transform.GetModelMatrix().toFloatArray(), 0, parent.transform.GetModelMatrix().toFloatArray(), 0, transformLocal.GetModelMatrix().toFloatArray(), 0);
 		}
 
 		if (meshesId != null)
@@ -132,7 +135,9 @@ public class GameObject
 	public void ApplyRotationToChilds() {
 		for (GameObject child: childs)
 		{
-			multiplyMM(child.transform.GetModelMatrix(), 0, transform.GetModelMatrix(), 0, child.transformLocal.GetModelMatrix(), 0);
+			child.transform.SetModelMatrix(transform.GetModelMatrix().times(child.transformLocal.GetModelMatrix()));
+
+		//	multiplyMM(child.transform.GetModelMatrix().toFloatArray(), 0, transform.GetModelMatrix().toFloatArray(), 0, child.transformLocal.GetModelMatrix().toFloatArray(), 0);
 		}
 	}
 
@@ -152,7 +157,7 @@ public class GameObject
 		}
 	}
 
-	public float[] getModelMatrix() {return  transform.GetModelMatrix();}
+	public Mat4 getModelMatrix() {return  transform.GetModelMatrix();}
 
 
 	public void CreateTexture(Context context)
