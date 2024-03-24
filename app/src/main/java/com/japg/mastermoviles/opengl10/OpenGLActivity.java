@@ -99,9 +99,10 @@ public class OpenGLActivity extends AppCompatActivity {
         				}
         			});
         		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-					System.out.println(objScaleGestureDetector.onTouchEvent(event));
 					System.out.println("isScaling " + isScaling);
-					if (!isScaling) {
+					if (event.getPointerCount() == 2) {
+						objScaleGestureDetector.onTouchEvent(event);
+					}else{
 						glSurfaceView.queueEvent(new Runnable() {
 							@Override
 							public void run() {
