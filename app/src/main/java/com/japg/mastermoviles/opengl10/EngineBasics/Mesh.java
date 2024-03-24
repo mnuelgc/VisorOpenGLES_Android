@@ -57,8 +57,6 @@ public class Mesh{
         offsetAngleX = 0;
         offsetAngleY = 0;
         offsetAngleZ = 0;
-
-
     }
 
 
@@ -67,7 +65,6 @@ public class Mesh{
         model = new Resource3DSReader();
         model.read3DSFromResource(context, resourceId != null ? resourceId : 0);
         transform = new Transform( "Mesh Transform");
-
 
         transform.SetModelMatrix(parent.GetModelMatrix());
 
@@ -156,8 +153,4 @@ public class Mesh{
             glDrawArrays(GL_TRIANGLES, 0, model.numVertices[i]);
         }
     }
-
-
-    /*public void Rotate(float x, float y, float z) {
-    }*/
 }

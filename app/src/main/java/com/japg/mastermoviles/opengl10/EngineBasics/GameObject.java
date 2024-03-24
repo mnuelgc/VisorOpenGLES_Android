@@ -48,7 +48,6 @@ public class GameObject
 			transformLocal.Translate(0, xInicial,yInicial,zInicial);
 
 			transform.SetModelMatrix(parent.getModelMatrix().times(transformLocal.GetModelMatrix()));
-		//	multiplyMM(transform.GetModelMatrix().toFloatArray(), 0, parent.transform.GetModelMatrix().toFloatArray(), 0, transformLocal.GetModelMatrix().toFloatArray(), 0);
 		}
 
 		if (meshesId != null)
@@ -131,15 +130,11 @@ public class GameObject
 		for (GameObject child: childs)
 		{
 			child.transform.SetModelMatrix(transform.GetModelMatrix().times(child.transformLocal.GetModelMatrix()));
-
-		//	multiplyMM(child.transform.GetModelMatrix().toFloatArray(), 0, transform.GetModelMatrix().toFloatArray(), 0, child.transformLocal.GetModelMatrix().toFloatArray(), 0);
 		}
 	}
 
 	public void  Render(int aPositionLocation, int aNormalLocation, int aUVLocation, int uTextureLocation)
 	{
-		//transform.PrepareDraw();
-
 		if (childs!= null) {
 			for (GameObject child : childs) {
 				child.Render(aPositionLocation, aNormalLocation, aUVLocation, uTextureLocation);
@@ -147,7 +142,6 @@ public class GameObject
 		}
 		if (mesh != null)
 		{
-		//	transform.PrepareDraw();
 			mesh.Render(aPositionLocation, aNormalLocation, aUVLocation, uTextureLocation, textureCreated);
 		}
 	}
