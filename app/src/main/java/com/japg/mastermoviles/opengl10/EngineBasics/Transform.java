@@ -1,4 +1,4 @@
-package com.japg.mastermoviles.opengl10;
+package com.japg.mastermoviles.opengl10.EngineBasics;
 
 import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;

@@ -1,4 +1,4 @@
-package com.japg.mastermoviles.opengl10;
+package com.japg.mastermoviles.opengl10.EngineBasics;
 
 import static android.opengl.GLES20.glActiveTexture;
 import static android.opengl.GLES20.glBindTexture;
@@ -14,13 +14,11 @@ import static android.opengl.GLES20.glVertexAttribPointer;
 
 
 import android.content.Context;
-import android.os.Debug;
 
 import com.japg.mastermoviles.opengl10.util.Resource3DSReader;
 import com.japg.mastermoviles.opengl10.util.TextureHelper;
 
 import java.nio.Buffer;
-import java.util.concurrent.TimeUnit;
 
 public class Mesh{
 
