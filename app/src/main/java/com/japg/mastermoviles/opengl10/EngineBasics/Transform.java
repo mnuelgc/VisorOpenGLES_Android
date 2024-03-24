@@ -14,7 +14,7 @@ import glm_.vec3.Vec3;
 public class Transform {
 
     String mName;
-    Vec3 mPosition;
+    public Vec3 mPosition;
     Vec3 mAnglesEuler;
     Mat4 mModelMatrix;
 

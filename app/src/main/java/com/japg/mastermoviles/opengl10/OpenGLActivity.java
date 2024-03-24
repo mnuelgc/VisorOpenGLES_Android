@@ -7,16 +7,22 @@ import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
 
 
 public class OpenGLActivity extends AppCompatActivity {
@@ -50,6 +56,8 @@ public class OpenGLActivity extends AppCompatActivity {
         glSurfaceView = new GLSurfaceView(this);
 		objScaleGestureDetector = new ScaleGestureDetector(this, new PinchZoomListener());
 		openGLRenderer = new OpenGLRenderer(this);
+
+		//setContentView(R.layout.head_controllers_layout);
         //final OpenGLRenderer openGLRenderer = new OpenGLRenderer(this);
         final ActivityManager activityManager =
         		(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -79,7 +87,7 @@ public class OpenGLActivity extends AppCompatActivity {
         			Toast.LENGTH_LONG).show();
         	return;
         }
-        
+
         glSurfaceView.setOnTouchListener(new OnTouchListener() {
         	@SuppressLint("ClickableViewAccessibility")
 			@Override
@@ -117,7 +125,85 @@ public class OpenGLActivity extends AppCompatActivity {
         	  }
         	}
         });
-        setContentView(glSurfaceView);
+
+		setContentView(glSurfaceView);
+
+		FrameLayout layout = (FrameLayout) glSurfaceView.getParent();
+		LayoutInflater inflater = LayoutInflater.from(this);
+		View v =  inflater.inflate(R.layout.head_controllers_layout, null);
+		View v2 =  inflater.inflate(R.layout.head_controllers_up_down_layout, null);
+
+		layout.addView(v, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER
+		));
+
+		layout.addView(v2, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER_HORIZONTAL
+		));
+
+
+		Button bLeft = v.findViewById(R.id.rotateLeft);
+		Button bRight = v.findViewById(R.id.rotateRight);
+		Button bUp = v2.findViewById(R.id.rotateUP);
+		Button bDown = v2.findViewById(R.id.rotateDown);
+
+
+		bLeft.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.HeadToTheLeft();
+					}
+				});
+			}
+		});
+
+		bRight.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.HeadToTheRight();
+					}
+				});
+			}
+		});
+
+		bUp.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.HeadToUp();
+					}
+				});
+			}
+		});
+
+
+		bDown.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				glSurfaceView.queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						openGLRenderer.HeadToDown();
+					}
+				});
+			}
+		});
+
+
+
+		//ArrayList<View> buttonGroup = new ArrayList<View>();
+		//buttonGroup.add(b1);
+		//buttonGroup.add(b2);
+		//glSurfaceView.addTouchables(buttonGroup);
+
     }
 
     @Override

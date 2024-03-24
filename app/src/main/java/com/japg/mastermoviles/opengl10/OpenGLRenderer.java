@@ -30,6 +30,8 @@ import static android.opengl.GLES20.glGetIntegerv;
 import static android.opengl.GLES20.glLineWidth;
 import static android.opengl.GLES20.glViewport;
 
+import glm_.vec3.Vec3;
+
 public class OpenGLRenderer implements Renderer {
 	private static final String TAG = "OpenGLRenderer";
 	private static final int BYTES_PER_FLOAT = 4;
@@ -41,6 +43,10 @@ public class OpenGLRenderer implements Renderer {
 	private float orgRX = 0f;
 	private float rY = 0f;
 	private float orgRY = 0f;
+
+
+	private float childRX = 0f;
+	private float childRY = 0f;
 
 
 	private float preRX = 0f;
@@ -57,6 +63,7 @@ public class OpenGLRenderer implements Renderer {
 		List<Integer> monkeyIds = new ArrayList<Integer>();
 		monkeyIds.add(R.raw.cubo);
 		monkeyIds.add(R.raw.mono);
+		monkeyIds.add(R.raw.batmobile);
 
 		List<Integer> monkeyTextIds = new ArrayList<Integer>();
 		monkeyTextIds.add(R.drawable.mono_tex);
@@ -65,8 +72,9 @@ public class OpenGLRenderer implements Renderer {
 								monkeyTextIds,
 								0, 0, -7);
 		camera = new Camera();
+		//monkey.getChilds().get(2).transform.Translate(0, 0.0f, 1.5f, 0.0f);
 
-
+	//	monkey.getChilds().get(2).transform.mPosition = new Vec3(0,1.5f,0);
 	//	for (int i = 0; i < camera.get)
 	}
 	
@@ -141,7 +149,12 @@ public class OpenGLRenderer implements Renderer {
 
 		monkey.Rotate(  rX , 1, 0, 0);
 		monkey.Rotate(  rY,0, 1, 0);
-		monkey.getChilds().get(1).transform.Rotate(System.nanoTime() /10000000f, 0.0f, 1.0f, 0.0f);
+		//monkey.getChilds().get(1).transform.Rotate(childRX, 1.0f, 0.0f, 0.0f);
+		monkey.getChilds().get(1).transform.Rotate(childRY, 0.0f, 1.0f, 0.0f);
+
+
+		monkey.getChilds().get(2).transform.Rotate(childRY, 0.0f, 1.0f, 0.0f);
+		monkey.getChilds().get(2).transform.Rotate(childRX, 1.0f, 0.0f, 0.0f);
 
 
 		probeShader.RenderGameObject(monkey, camera.GetProjectView());
@@ -187,4 +200,27 @@ public class OpenGLRenderer implements Renderer {
 		camera.moveBackwards();
 		//UpdatePerspective(width, height);
 	}
+
+	public void HeadToTheLeft()
+	{
+		childRY -=25;
+	}
+	public void HeadToTheRight()
+	{
+		childRY +=25;
+	}
+	public void HeadToUp()
+	{
+		childRX -=25;
+
+		childRX = (childRX < -180) ? -180 : childRX;
+	}
+	public void HeadToDown()
+	{
+		childRX +=25;
+		childRX = (childRX > 60) ? 60 : childRX;
+	}
+
+
+
 }

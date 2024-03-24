@@ -56,13 +56,21 @@ public class GameObject
 			for(int i = 0; i < meshesId.size(); i++)
 			{
 				GameObject child;
-				if (i == 1) {
+				if (i == 1 ) {
 					child = new GameObject(
 							context,
 							meshesId.get(i),
 							mTextures.get(0),
 							this,
 							0, 1.5f, 0);
+				}
+				else if( i == 2){
+				child = new GameObject(
+						context,
+						meshesId.get(i),
+						mTextures.get(0),
+						this,
+						0, 2.0f, 0);
 				}
 				else {
 					child = new GameObject(
