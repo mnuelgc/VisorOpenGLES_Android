@@ -3,15 +3,12 @@ package com.japg.mastermoviles.opengl10.Shaders;
 import static android.opengl.GLES20.glUseProgram;
 
 import android.content.Context;
-import android.util.Pair;
 
-import com.japg.mastermoviles.opengl10.GameObject;
-import com.japg.mastermoviles.opengl10.R;
+import com.japg.mastermoviles.opengl10.EngineBasics.GameObject;
 import com.japg.mastermoviles.opengl10.util.LoggerConfig;
 import com.japg.mastermoviles.opengl10.util.ShaderHelper;
 import com.japg.mastermoviles.opengl10.util.TextResourceReader;
 
-import java.util.List;
 import java.util.Map;
 
 import glm_.mat4x4.Mat4;

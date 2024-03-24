@@ -1,23 +1,14 @@
 package com.japg.mastermoviles.opengl10.Shaders;
 
-import static android.opengl.GLES20.GL_TEXTURE0;
-import static android.opengl.GLES20.GL_TEXTURE_2D;
-import static android.opengl.GLES20.glActiveTexture;
-import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUniform1f;
 import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUniformMatrix4fv;
-import static android.opengl.Matrix.multiplyMM;
 
 import android.content.Context;
-import android.util.DebugUtils;
-import android.util.Pair;
 
-import com.japg.mastermoviles.opengl10.GameObject;
-import com.japg.mastermoviles.opengl10.Mesh;
+import com.japg.mastermoviles.opengl10.EngineBasics.GameObject;
 
 import java.util.HashMap;
 import java.util.Map;

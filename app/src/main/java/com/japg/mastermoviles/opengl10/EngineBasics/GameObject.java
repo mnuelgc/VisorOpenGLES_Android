@@ -1,15 +1,10 @@
-package com.japg.mastermoviles.opengl10;
+package com.japg.mastermoviles.opengl10.EngineBasics;
 
-import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.rotateM;
-import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
 
 import android.content.Context;
-import android.opengl.Matrix;
 
-import com.japg.mastermoviles.opengl10.Transform;
-import com.japg.mastermoviles.opengl10.util.Resource3DSReader;
 import com.japg.mastermoviles.opengl10.util.TextureHelper;
 
 import java.util.ArrayList;
@@ -28,7 +23,7 @@ public class GameObject
 	Integer texture;
 	int textureCreated;
 
-	Transform transform;
+	public Transform transform;
 	Transform transformLocal;
 
 	GameObject(Context context,
@@ -93,7 +88,7 @@ public class GameObject
 
 
 	/* Parent GameObject */
-	GameObject(Context context,
+	public GameObject(Context context,
 			   List<Integer> meshesId,
 			   List<Integer> mTextures,
 			   float xInicial, float yInicial, float zInicial)

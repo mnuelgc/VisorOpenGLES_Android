@@ -4,15 +4,14 @@ import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
 import android.util.Log;
 
+import com.japg.mastermoviles.opengl10.EngineBasics.Camera.Camera;
+import com.japg.mastermoviles.opengl10.EngineBasics.GameObject;
 import com.japg.mastermoviles.opengl10.Shaders.BasicShaderProgram;
 import com.japg.mastermoviles.opengl10.Shaders.Shader;
+import com.japg.mastermoviles.opengl10.EngineBasics.GameObject;
 import com.japg.mastermoviles.opengl10.util.LoggerConfig;
 import com.japg.mastermoviles.opengl10.util.Resource3DSReader;
-import com.japg.mastermoviles.opengl10.util.ShaderHelper;
-import com.japg.mastermoviles.opengl10.util.TextResourceReader;
-import com.japg.mastermoviles.opengl10.util.TextureHelper;
 
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,33 +22,18 @@ import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_CULL_FACE;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_TEST;
-import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_MAX_TEXTURE_IMAGE_UNITS;
 import static android.opengl.GLES20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS;
-import static android.opengl.GLES20.GL_TEXTURE0;
-import static android.opengl.GLES20.GL_TEXTURE_2D;
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.glActiveTexture;
-import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glDrawArrays;
 import static android.opengl.GLES20.glEnable;
-import static android.opengl.GLES20.glEnableVertexAttribArray;
-import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetIntegerv;
-import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glLineWidth;
-import static android.opengl.GLES20.glUniform1f;
-import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUniformMatrix4fv;
-import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
 import static android.opengl.Matrix.frustumM;
-import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.rotateM;
-import static android.opengl.Matrix.setIdentityM;
 import static android.opengl.Matrix.translateM;
 
 import glm_.mat4x4.Mat4;
@@ -87,8 +71,6 @@ public class OpenGLRenderer implements Renderer {
 	private int aPositionLocation;
 	private int aNormalLocation;
 	private int aUVLocation;
-
-
  */
 	
 	private int	texture;
@@ -119,6 +101,7 @@ public class OpenGLRenderer implements Renderer {
 
 
 	private GameObject monkey;
+	private Camera camera;
 
 	private float start = System.currentTimeMillis();
 
@@ -224,6 +207,27 @@ public class OpenGLRenderer implements Renderer {
 								monkeyIds,
 								monkeyTextIds,
 								0, 0, -7);
+
+		camera = new Camera();
+
+
+		System.out.println("projectionMatrix");
+		for (int i = 0; i < projectionMatrix.length; i++)
+		{
+			System.out.print(projectionMatrix[i] + " ");
+			if ((i + 1)  % 4 == 0 && i != 0)
+				System.out.println(" ");
+		}
+		System.out.println(" ");
+		System.out.println(" ");
+
+		System.out.println("Camera");
+		for (int i = 0; i < camera.GetProjectView().toFloatArray().length; i++)
+		{
+			System.out.print(camera.GetProjectView().toFloatArray()[i] + " ");
+			if ((i + 1) % 4 == 0)
+				System.out.println(" ");
+		}
 	}
 	
 	@Override
@@ -273,13 +277,33 @@ public class OpenGLRenderer implements Renderer {
 		if (width > height) {
 				// Landscape
 				//orthoM(projectionMatrix, 0, -aspectRatio*TAM, aspectRatio*TAM, -TAM, TAM, -100.0f, 100.0f);
-				perspective(projectionMatrix, 0, 45f, aspectRatio, 0.01f, 1000f);
+				camera.setPerspective(45f, aspectRatio, 0.01f, 1000f);
 				//frustum(projectionMatrix, 0, -aspectRatio*TAM, aspectRatio*TAM, -TAM, TAM, 1f, 1000.0f);
 		} else {
 				// Portrait or square
 				//orthoM(projectionMatrix, 0, -TAM, TAM, -aspectRatio*TAM, aspectRatio*TAM, -100.0f, 100.0f);
-				perspective(projectionMatrix, 0, 45f, 1f/aspectRatio, 0.01f, 1000f);
+				camera.setPerspective(45f, 1f/aspectRatio, 0.01f, 1000f);
 				//frustum(projectionMatrix, 0, -TAM, TAM, -aspectRatio*TAM, aspectRatio*TAM, 1f, 1000.0f);
+		}
+
+
+
+		System.out.println("projectionMatrix");
+		for (int i = 0; i < projectionMatrix.length; i++)
+		{
+			System.out.print(projectionMatrix[i] + " ");
+			if ((i + 1)  % 4 == 0 && i != 0)
+				System.out.println(" ");
+		}
+		System.out.println(" ");
+		System.out.println(" ");
+
+		System.out.println("Camera");
+		for (int i = 0; i < camera.GetProjectView().toFloatArray().length; i++)
+		{
+			System.out.print(camera.GetProjectView().toFloatArray()[i] + " ");
+			if ((i + 1) % 4 == 0)
+				System.out.println(" ");
 		}
 	}
 	
@@ -304,7 +328,8 @@ public class OpenGLRenderer implements Renderer {
 		monkey.Rotate(  rY,0, 1, 0);
 		monkey.getChilds().get(1).transform.Rotate(System.nanoTime() /10000000f, 0.0f, 1.0f, 0.0f);
 
-		probeShader.RenderGameObject(monkey, new Mat4(projectionMatrix));
+		probeShader.RenderGameObject(monkey, camera.GetProjectView());
+	//	probeShader.RenderGameObject(monkey, new Mat4(projectionMatrix));
 	}
 	
 	public void handleTouchPress(float normalizedX, float normalizedY) {
